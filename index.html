@@ -10,24 +10,27 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-        body {
+        html, body {
             margin: 0;
-            min-height: 100vh;
+            padding: 0;
+            width: 100%;
+            height: 100%;
             background: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: monospace;
-            padding: 10px;
+            overflow: hidden; /* 禁止滚动 */
         }
         #gameContainer {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;          /* 占满视口 */
             max-width: 500px;
-            width: 100%;
+            margin: 0 auto;
             background: #2a2a2a;
-            border-radius: 10px;
-            padding: 10px;
+            padding: 8px;
+            box-sizing: border-box;
         }
         #canvasWrapper {
+            flex-shrink: 0;
             display: flex;
             justify-content: center;
         }
@@ -36,97 +39,101 @@
             aspect-ratio: 1/1;
             border: 2px solid #fff;
             background: #000;
-            touch-action: none; /* 禁止触摸滚动 */
+            touch-action: none;
         }
         #statusBar {
+            flex-shrink: 0;
             color: #fff;
             background: #333;
-            padding: 10px;
+            padding: 6px 10px;
             border-radius: 5px;
-            margin-top: 10px;
-            font-size: 14px;
+            margin: 8px 0;
+            font-size: 12px;
+            max-height: 140px;
+            overflow-y: auto; /* 如果状态内容太多，可内部滚动 */
         }
         #statusBar > div {
-            margin-bottom: 10px;
+            margin-bottom: 4px;
             border-bottom: 1px solid #555;
-            padding-bottom: 5px;
+            padding-bottom: 2px;
         }
         #statusBar h3 {
-            margin: 0 0 10px 0;
+            margin: 0 0 4px 0;
             text-align: center;
             color: #ff0;
+            font-size: 14px;
         }
         #statusBar ul {
-            margin: 5px 0;
-            padding-left: 20px;
+            margin: 2px 0;
+            padding-left: 16px;
         }
         #controls {
+            flex-shrink: 0;
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-            justify-content: center;
+            flex-direction: column;
+            gap: 6px;
         }
         .control-btn {
             background: #444;
             color: white;
             border: 2px solid #888;
-            border-radius: 8px;
-            padding: 12px 0;
-            font-size: 16px;
+            border-radius: 6px;
+            padding: 10px 0;
+            font-size: 14px;
             font-weight: bold;
             text-align: center;
-            flex: 1 0 60px;
             cursor: pointer;
             touch-action: manipulation;
-            box-shadow: 0 4px 0 #222;
-            transition: 0.1s;
+            box-shadow: 0 3px 0 #222;
+            transition: 0.05s;
+            min-width: 0;
         }
         .control-btn:active {
-            transform: translateY(4px);
+            transform: translateY(3px);
             box-shadow: none;
         }
         .dir-pad {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .dir-pad .control-btn {
-            flex: 1 0 70px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
         }
         .action-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-        }
-        .action-row .control-btn {
-            flex: 1 0 60px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
         }
         .item-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 8px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
         }
         .item-row .control-btn {
-            flex: 1 0 50px;
             background: #2a6f2a;
         }
-        .spacer {
-            width: 100%;
-            height: 5px;
+        /* 让状态栏内部文本紧凑 */
+        #hpMana p, #levelInfo p {
+            margin: 2px 0;
         }
-        @media (min-width: 600px) {
-            #gameContainer {
-                max-width: 800px;
+        /* 小屏幕适配 */
+        @media (max-height: 700px) {
+            #statusBar {
+                font-size: 11px;
+                padding: 4px 8px;
+                max-height: 120px;
             }
             .control-btn {
-                font-size: 18px;
-                padding: 15px 0;
+                padding: 8px 0;
+                font-size: 13px;
+            }
+        }
+        @media (max-height: 600px) {
+            #statusBar {
+                font-size: 10px;
+                max-height: 100px;
+            }
+            .control-btn {
+                padding: 6px 0;
+                font-size: 12px;
             }
         }
     </style>
@@ -147,34 +154,28 @@
             </div>
             <div id="equipment">
                 <p>⚔️ 装备</p>
-                <ul id="equipmentList">
-                    <li>武器: 无</li>
-                </ul>
+                <ul id="equipmentList"></ul>
             </div>
             <div id="spells">
                 <p>🔮 法术</p>
-                <ul id="spellList">
-                    <li>无</li>
-                </ul>
+                <ul id="spellList"></ul>
             </div>
             <div id="inventory">
                 <p>🎒 背包</p>
-                <ul id="inventoryList">
-                    <li>空</li>
-                </ul>
+                <ul id="inventoryList"></ul>
             </div>
         </div>
 
         <!-- 移动端虚拟按钮区 -->
         <div id="controls">
-            <!-- 方向键 -->
+            <!-- 方向键：4个按钮用grid -->
             <div class="dir-pad">
                 <div class="control-btn" id="btn-up">↑</div>
                 <div class="control-btn" id="btn-down">↓</div>
                 <div class="control-btn" id="btn-left">←</div>
                 <div class="control-btn" id="btn-right">→</div>
             </div>
-            <!-- 主要动作 -->
+            <!-- 主要动作：5个按钮 -->
             <div class="action-row">
                 <div class="control-btn" id="btn-attack">⚔️攻击</div>
                 <div class="control-btn" id="btn-switch">🔁切武</div>
@@ -206,7 +207,7 @@
         <p>血魔藤蔓法术已自动获得</p>
     </div>
 
-    <!-- 引入脚本（顺序重要） -->
+    <!-- 引入脚本 -->
     <script src="constants.js"></script>
     <script src="weapons.js"></script>
     <script src="items.js"></script>
@@ -215,7 +216,6 @@
     <script src="boss.js"></script>
     <script src="spells.js"></script>
     <script src="player.js"></script>
-    <!-- 移动端控制器（新增） -->
     <script src="mobile.js"></script>
 </body>
 </html>
