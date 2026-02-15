@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Roguelike 移动版</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+            padding: 10px;
+        }
+        #gameContainer {
+            max-width: 500px;
+            width: 100%;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        #canvasWrapper {
+            display: flex;
+            justify-content: center;
+        }
+        #gameCanvas {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border: 2px solid #fff;
+            background: #000;
+            touch-action: none; /* 禁止触摸滚动 */
+        }
+        #statusBar {
+            color: #fff;
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        #statusBar > div {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+        #statusBar h3 {
+            margin: 0 0 10px 0;
+            text-align: center;
+            color: #ff0;
+        }
+        #statusBar ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        #controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .control-btn {
+            background: #444;
+            color: white;
+            border: 2px solid #888;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            flex: 1 0 60px;
+            cursor: pointer;
+            touch-action: manipulation;
+            box-shadow: 0 4px 0 #222;
+            transition: 0.1s;
+        }
+        .control-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+        .dir-pad {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .dir-pad .control-btn {
+            flex: 1 0 70px;
+        }
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .action-row .control-btn {
+            flex: 1 0 60px;
+        }
+        .item-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .item-row .control-btn {
+            flex: 1 0 50px;
+            background: #2a6f2a;
+        }
+        .spacer {
+            width: 100%;
+            height: 5px;
+        }
+        @media (min-width: 600px) {
+            #gameContainer {
+                max-width: 800px;
+            }
+            .control-btn {
+                font-size: 18px;
+                padding: 15px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="canvasWrapper">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+        </div>
+        <div id="statusBar">
+            <h3>状态</h3>
+            <div id="hpMana">
+                <p>❤️ HP: <span id="hpValue">10</span> / <span id="maxHpValue">10</span></p>
+                <p>💙 MP: <span id="mpValue">10</span> / <span id="maxMpValue">10</span></p>
+            </div>
+            <div id="levelInfo">
+                <p>Lv. <span id="levelValue">1</span>  EXP: <span id="expValue">0</span>/<span id="expNextValue">10</span></p>
+            </div>
+            <div id="equipment">
+                <p>⚔️ 装备</p>
+                <ul id="equipmentList">
+                    <li>武器: 无</li>
+                </ul>
+            </div>
+            <div id="spells">
+                <p>🔮 法术</p>
+                <ul id="spellList">
+                    <li>无</li>
+                </ul>
+            </div>
+            <div id="inventory">
+                <p>🎒 背包</p>
+                <ul id="inventoryList">
+                    <li>空</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 移动端虚拟按钮区 -->
+        <div id="controls">
+            <!-- 方向键 -->
+            <div class="dir-pad">
+                <div class="control-btn" id="btn-up">↑</div>
+                <div class="control-btn" id="btn-down">↓</div>
+                <div class="control-btn" id="btn-left">←</div>
+                <div class="control-btn" id="btn-right">→</div>
+            </div>
+            <!-- 主要动作 -->
+            <div class="action-row">
+                <div class="control-btn" id="btn-attack">⚔️攻击</div>
+                <div class="control-btn" id="btn-switch">🔁切武</div>
+                <div class="control-btn" id="btn-fireball">🔥火球</div>
+                <div class="control-btn" id="btn-vine">🌿藤蔓</div>
+                <div class="control-btn" id="btn-downfloor">⬇下楼</div>
+            </div>
+            <!-- 物品栏 1-4 -->
+            <div class="item-row">
+                <div class="control-btn" id="btn-item1">1</div>
+                <div class="control-btn" id="btn-item2">2</div>
+                <div class="control-btn" id="btn-item3">3</div>
+                <div class="control-btn" id="btn-item4">4</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 升级奖励模态框 -->
+    <div id="levelUpModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #333; color: white; padding: 20px; border: 2px solid #fff; z-index: 100; text-align: center;">
+        <h2>升级！选择一项奖励</h2>
+        <div id="rewardOptions"></div>
+        <p>❤️ HP +10, 💙 MP +10 (已自动增加)</p>
+    </div>
+
+    <!-- Boss奖励模态框 -->
+    <div id="bossRewardModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #333; color: white; padding: 20px; border: 2px solid #fff; z-index: 100; text-align: center;">
+        <h2>击败Boss！选择一项奖励</h2>
+        <div id="bossRewardOptions"></div>
+        <p>血魔藤蔓法术已自动获得</p>
+    </div>
+
+    <!-- 引入脚本（顺序重要） -->
+    <script src="constants.js"></script>
+    <script src="weapons.js"></script>
+    <script src="items.js"></script>
+    <script src="base.js"></script>
+    <script src="enemy.js"></script>
+    <script src="boss.js"></script>
+    <script src="spells.js"></script>
+    <script src="player.js"></script>
+    <!-- 移动端控制器（新增） -->
+    <script src="mobile.js"></script>
+</body>
+</html>
