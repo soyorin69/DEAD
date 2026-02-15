@@ -167,31 +167,36 @@
         </div>
 
         <!-- 移动端虚拟按钮区 -->
-        <div id="controls">
-            <!-- 方向键：4个按钮用grid -->
-            <div class="dir-pad">
-                <div class="control-btn" id="btn-up">↑</div>
-                <div class="control-btn" id="btn-down">↓</div>
-                <div class="control-btn" id="btn-left">←</div>
-                <div class="control-btn" id="btn-right">→</div>
-            </div>
-            <!-- 主要动作：5个按钮 -->
-            <div class="action-row">
-                <div class="control-btn" id="btn-attack">⚔️攻击</div>
-                <div class="control-btn" id="btn-switch">🔁切武</div>
-                <div class="control-btn" id="btn-fireball">🔥火球</div>
-                <div class="control-btn" id="btn-vine">🌿藤蔓</div>
-                <div class="control-btn" id="btn-downfloor">⬇下楼</div>
-            </div>
-            <!-- 物品栏 1-4 -->
-            <div class="item-row">
-                <div class="control-btn" id="btn-item1">1</div>
-                <div class="control-btn" id="btn-item2">2</div>
-                <div class="control-btn" id="btn-item3">3</div>
-                <div class="control-btn" id="btn-item4">4</div>
-            </div>
-        </div>
+      <div id="controls">
+    <!-- 方向键 -->
+    <div class="dir-pad">
+        <div class="control-btn" id="btn-up">↑</div>
+        <div class="control-btn" id="btn-down">↓</div>
+        <div class="control-btn" id="btn-left">←</div>
+        <div class="control-btn" id="btn-right">→</div>
     </div>
+    <!-- 主要动作 -->
+    <div class="action-row">
+        <div class="control-btn" id="btn-attack">⚔️攻击</div>
+        <div class="control-btn" id="btn-switch">🔁切武</div>
+        <div class="control-btn" id="btn-downfloor">⬇下楼</div>
+    </div>
+    <!-- 法术行 Q W E R T -->
+    <div class="spell-row">
+        <div class="control-btn" id="btn-spell-q">Q火球</div>
+        <div class="control-btn" id="btn-spell-w">W</div>
+        <div class="control-btn" id="btn-spell-e">E藤蔓</div>
+        <div class="control-btn" id="btn-spell-r">R</div>
+        <div class="control-btn" id="btn-spell-t">T</div>
+    </div>
+    <!-- 物品栏 1-4 -->
+    <div class="item-row">
+        <div class="control-btn" id="btn-item1">1</div>
+        <div class="control-btn" id="btn-item2">2</div>
+        <div class="control-btn" id="btn-item3">3</div>
+        <div class="control-btn" id="btn-item4">4</div>
+    </div>
+</div>
 
     <!-- 升级奖励模态框 -->
     <div id="levelUpModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #333; color: white; padding: 20px; border: 2px solid #fff; z-index: 100; text-align: center;">
@@ -219,3 +224,4 @@
     <script src="mobile.js"></script>
 </body>
 </html>
+
