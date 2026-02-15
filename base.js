@@ -237,9 +237,8 @@ function updateStatusBar() {
         equipmentList.innerHTML = weaponsHtml;
     }
 
-    const spellList = document.getElementById('spellList');
-    spellList.innerHTML = game.spells.length ? game.spells.map(s => `<li>${s}</li>`).join('') : '<li>无</li>';
-
+   const spellList = document.getElementById('spellList');
+spellList.innerHTML = game.spells.length ? game.spells.map(s => `<li>${s.name}</li>`).join('') : '<li>无</li>';
     const inventoryList = document.getElementById('inventoryList');
     if (game.inventory.length === 0) {
         inventoryList.innerHTML = '<li>空</li>';
@@ -272,3 +271,4 @@ window.generateNewFloor = generateNewFloor;
 
 
 initGame();
+
