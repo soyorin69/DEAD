@@ -24,7 +24,7 @@ window.game = {
     enemies: [],
     items: [],
     inventory: [],
-    spells: ['火球术'],
+    spells: [],
     floor: 1,
     weapons: [],
     currentWeaponIndex: 0,
@@ -254,10 +254,13 @@ function checkGameOver() {
     }
 }
 
+// 在 initGame 中添加初始法术
 function initGame() {
     generateNewFloor(1);
     game.weapons = getInitialWeapons();
     game.currentWeaponIndex = 0;
+    // 添加初始法术（火球术和血魔藤蔓？但血魔藤蔓应该是Boss奖励，所以初始只有火球术）
+    game.spells.push({ name: '火球术', key: 'q', cost: 5, cast: castFireball });
     draw();
     updateStatusBar();
 }
@@ -266,5 +269,6 @@ window.draw = draw;
 window.updateStatusBar = updateStatusBar;
 window.checkGameOver = checkGameOver;
 window.generateNewFloor = generateNewFloor;
+
 
 initGame();
