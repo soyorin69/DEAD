@@ -118,13 +118,13 @@ function applyReward(reward) {
             game.inventory.push(randomItem);
             console.log('获得道具:', getItemName(randomItem));
             break;
-        case 'spell':
-            const newSpell = '火球术';
-            if (!game.spells.includes(newSpell)) {
-                game.spells.push(newSpell);
-                console.log('学会法术:', newSpell);
-            }
-            break;
+       case 'spell':
+    const newSpell = getRandomSpell(game.spells);
+    if (newSpell) {
+        game.spells.push(newSpell);
+        console.log('学会法术:', newSpell.name);
+    }
+    break;
         case 'special':
             if (reward.name.includes('攻击')) {
                 game.player.baseAttack += 1;
@@ -366,19 +366,15 @@ function removeEnemy(enemy) {
     game.enemies = game.enemies.filter(e => e !== enemy);
 }
 
-// 处理Boss击败
 function handleBossDefeat(boss) {
     console.log('Boss被击败！');
-    // 移除Boss
     game.enemies = game.enemies.filter(e => e !== boss);
-    // 奖励：免费获得血魔藤蔓法术
-    if (!game.spells.includes('血魔藤蔓')) {
-        game.spells.push('血魔藤蔓');
+    // 免费获得血魔藤蔓
+    if (!game.spells.some(s => s.name === '血魔藤蔓')) {
+        game.spells.push({ name: '血魔藤蔓', key: 'e', cost: 3, cast: window.castBloodVine });
     }
-    // 弹出三选一奖励
     showBossRewards();
 }
-
 // Boss奖励界面
 function showBossRewards() {
     const rewards = [
@@ -576,3 +572,9 @@ window.gainExp = gainExp;
 window.removeEnemy = removeEnemy;
 
 window.addEventListener('load', initGame);
+window.applyCritDamage = applyCritDamage;
+window.getRangedTarget = getRangedTarget;
+window.getAllRangedTargets = getAllRangedTargets;
+window.removeEnemy = removeEnemy;
+window.gainExp = gainExp;
+
