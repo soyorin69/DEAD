@@ -77,6 +77,11 @@
         attachTouchClick('btn-item4', () => {
             simulateKey('4');
         });
+        attachTouchClick('btn-spell-q', () => simulateKey('q'));
+attachTouchClick('btn-spell-w', () => simulateKey('w'));
+attachTouchClick('btn-spell-e', () => simulateKey('e'));
+attachTouchClick('btn-spell-r', () => simulateKey('r'));
+attachTouchClick('btn-spell-t', () => simulateKey('t'));
     }
 
     // 模拟键盘事件，触发 player.js 中的监听器
@@ -91,4 +96,5 @@
     }
 
     waitForGame();
+
 })();
