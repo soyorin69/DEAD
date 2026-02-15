@@ -517,17 +517,12 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    // Q键 火球术
-if (e.key === 'q' || e.key === 'Q') {
+// 在键盘事件中，替换原来的 Q/E 分支
+const key = e.key.toLowerCase();
+const spell = game.spells.find(s => s.key === key);
+if (spell) {
     e.preventDefault();
-    castFireball();
-    return;
-}
-
-// E键 血魔藤蔓
-if (e.key === 'e' || e.key === 'E') {
-    e.preventDefault();
-    castBloodVine();
+    spell.cast();
     return;
 }
 
@@ -579,4 +574,5 @@ if (e.code === 'Space') {
 
 window.gainExp = gainExp;
 window.removeEnemy = removeEnemy;
+
 window.addEventListener('load', initGame);
