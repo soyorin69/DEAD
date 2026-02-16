@@ -285,50 +285,54 @@ function playerAttack() {
                 attackSuccess = true;
             }
         }
-    } else {
-        // 近战攻击（剑、乐器、法杖、盾）
-        const dir = game.player.facing;
-        const targetX = game.player.x + dir.x;
-        const targetY = game.player.y + dir.y;
-        const enemy = getEnemyAt(targetX, targetY);
-        if (enemy) {
-            if (window.cheats.oneHitKill) {
-                enemy.hp = 0;
-            } else {
-                let baseDamage = currentWeapon.attack + (game.player.baseAttack || 0);
-                // 应用攻击力buff（乐器效果）
-                if (game.player.buffs.some(b => b.type === CONST.BUFF_TYPES.ATTACK_UP)) {
-                    baseDamage = Math.floor(baseDamage * 1.5);
-                }
-                let totalDamage = 0;
+} else {
+    // 近战攻击（剑、乐器、法杖、盾）
+    const dir = game.player.facing;
+    const targetX = game.player.x + dir.x;
+    const targetY = game.player.y + dir.y;
+    const enemy = getEnemyAt(targetX, targetY);
+    if (enemy) {
+        if (window.cheats.oneHitKill) {
+            enemy.hp = 0;
+        } else {
+            let baseDamage = currentWeapon.attack + (game.player.baseAttack || 0);
+            // 应用攻击力buff（乐器效果）
+            if (game.player.buffs.some(b => b.type === CONST.BUFF_TYPES.ATTACK_UP)) {
+                baseDamage = Math.floor(baseDamage * 1.5);
+            }
+            let totalDamage = 0;
 
-                if (currentWeapon.doubleStrike) {
-                    // 痛苦双刀：两段攻击
-                    for (let i = 0; i < 2; i++) {
-                        const damage = applyCritDamage(baseDamage, currentWeapon);
-                        totalDamage += damage;
-                        if (damage === baseDamage && currentWeapon.selfDamage > 0) {
-                            // 未暴击的段扣血
-                            game.player.hp = Math.max(1, game.player.hp - currentWeapon.selfDamage);
-                            console.log('痛苦双刀反噬，扣2血');
-                        }
+            if (currentWeapon.doubleStrike) {
+                // 痛苦双刀：两段攻击
+                for (let i = 0; i < 2; i++) {
+                    const damage = applyCritDamage(baseDamage, currentWeapon);
+                    totalDamage += damage;
+                    if (damage === baseDamage && currentWeapon.selfDamage > 0) {
+                        // 未暴击的段扣血
+                        game.player.hp = Math.max(1, game.player.hp - currentWeapon.selfDamage);
+                        console.log('痛苦双刀反噬，扣2血');
                     }
-                } else {
-                    totalDamage = applyCritDamage(baseDamage, currentWeapon);
                 }
-                enemy.hp -= totalDamage;
+            } else {
+                totalDamage = applyCritDamage(baseDamage, currentWeapon);
             }
-
-            if (enemy.hp <= 0) {
-                // 残忍之杖召唤
-                if (currentWeapon.summonOnKill && !game.summon) {
-                    summonMinion(enemy);
-                }
-                removeEnemy(enemy);
-            }
-            attackSuccess = true;
+            enemy.hp -= totalDamage;
         }
+
+        if (enemy.hp <= 0) {
+            // 获得经验
+            gainExp(enemy.isBoss ? 20 : 5);
+
+            // 残忍之杖召唤
+            if (currentWeapon.summonOnKill && !game.summon) {
+                summonMinion(enemy);
+            }
+            removeEnemy(enemy);
+        }
+        attackSuccess = true;
     }
+}
+     
 
     if (attackSuccess) {
         draw();
@@ -719,3 +723,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
