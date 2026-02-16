@@ -672,7 +672,6 @@ window.movePlayer = function(dx, dy) {
     updateStatusBar();
     checkGameOver();
 };
-
 // 第二个 DOMContentLoaded 监听器，专门处理移动按钮
 document.addEventListener('DOMContentLoaded', () => {
     // 方向键
@@ -722,10 +721,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+
     // 金手指按钮
-document.getElementById('btn-cheat').addEventListener('click', () => {
-    showCheatPassword();
+    const cheatBtn = document.getElementById('btn-cheat');
+    if (cheatBtn) {
+        cheatBtn.addEventListener('click', () => {
+            showCheatPassword();
+        });
+    }
 });
-});
+
 
 
