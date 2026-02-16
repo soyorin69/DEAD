@@ -540,110 +540,76 @@ function playerTakeDamage(damage, source = null) {
 }
 
 // 键盘事件
-document.addEventListener('keydown', (e) => {
-  if (game.player.stunned) {
-    console.log('玩家被眩晕，本回合无法行动');
-    game.player.stunned = false;
-    e.preventDefault();
-    return;
-  }
-  if (window.isAnimating) {
-    e.preventDefault();
-    return;
-  }
+document.addEventListener('DOMContentLoaded', () => {
+    // 方向键
+    document.getElementById('btn-up').addEventListener('click', () => window.movePlayer(0, -1));
+    document.getElementById('btn-down').addEventListener('click', () => window.movePlayer(0, 1));
+    document.getElementById('btn-left').addEventListener('click', () => window.movePlayer(-1, 0));
+    document.getElementById('btn-right').addEventListener('click', () => window.movePlayer(1, 0));
 
-  // 下楼键
-  if (e.key === '>' || (e.code === 'Period' && e.shiftKey)) {
-    e.preventDefault();
-    goToNextFloor();
-    return;
-  }
+    // 攻击
+    document.getElementById('btn-attack').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        window.playerAttack();
+    });
 
-  // 数字键 1-4 使用背包物品
-  if (e.key >= '1' && e.key <= '4') {
-    e.preventDefault();
-    const index = parseInt(e.key) - 1;
-    useInventoryItem(index);
-    return;
-  }
+    // 切换武器
+    document.getElementById('btn-switch').addEventListener('click', () => {
+        if (window.isAnimating) return;
+        window.switchWeapon();
+    });
 
-  // 法术键 (q, w, e, r, t)
-  const key = e.key ? e.key.toLowerCase() : '';
-  const spell = game.spells.find(s => s.key === key);
-  if (spell) {
-    e.preventDefault();
-    spell.cast();
-    // 法术内部已处理清图检查
-    return;
-  }
+    // 下楼
+    document.getElementById('btn-downfloor').addEventListener('click', () => {
+        if (window.isAnimating) return;
+        window.goToNextFloor();
+    });
 
-  // F键 切换武器
-  if (e.key === 'f' || e.key === 'F') {
-    e.preventDefault();
-    switchWeapon(); 
-    return;
-  }
+    // 法术按钮 (Q W E R T)
+    document.getElementById('btn-spell-q').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        const spell = game.spells.find(s => s.key === 'q');
+        if (spell) spell.cast();
+    });
+    document.getElementById('btn-spell-w').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        const spell = game.spells.find(s => s.key === 'w');
+        if (spell) spell.cast();
+    });
+    document.getElementById('btn-spell-e').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        const spell = game.spells.find(s => s.key === 'e');
+        if (spell) spell.cast();
+    });
+    document.getElementById('btn-spell-r').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        const spell = game.spells.find(s => s.key === 'r');
+        if (spell) spell.cast();
+    });
+    document.getElementById('btn-spell-t').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        const spell = game.spells.find(s => s.key === 't');
+        if (spell) spell.cast();
+    });
 
-  // 空格攻击
-  if (e.code === 'Space') {
-    e.preventDefault();
-    const currentWeapon = game.weapons[game.currentWeaponIndex];
-    if (!currentWeapon) return;
-
-    // 先检查处决
-    if (typeof window.tryExecute === 'function' && window.tryExecute()) {
-      enemiesTurn();
-      draw();
-      updateStatusBar();
-      checkGameOver();
-      // 处决后检查清图
-      if (typeof window.checkFloorClear === 'function') {
-        window.checkFloorClear();
-      }
-      return;
-    }
-
-    if (currentWeapon.type === CONST.WEAPON_TYPES.INSTRUMENT) {
-      applyInstrumentBuff(currentWeapon);
-      enemiesTurn();
-      draw();
-      updateStatusBar();
-      checkGameOver();
-      // 乐器使用后检查清图
-      if (typeof window.checkFloorClear === 'function') {
-        window.checkFloorClear();
-      }
-    } else {
-      playerAttack();
-    }
-    return;
-  }
-
-  // 方向键移动
-  if (typeof e.key !== 'string' || !e.key.startsWith('Arrow')) return;
-  e.preventDefault();
-
-  let dx = 0, dy = 0;
-  switch (e.key) {
-    case 'ArrowUp':    dy = -1; break;
-    case 'ArrowDown':  dy = 1; break;
-    case 'ArrowLeft':  dx = -1; break;
-    case 'ArrowRight': dx = 1; break;
-  }
-
-  game.player.facing = { x: dx, y: dy };
-
-  let newX = game.player.x + dx;
-  let newY = game.player.y + dy;
-
-  if (newY >= 0 && newY < CONST.MAP_HEIGHT && newX >= 0 && newX < CONST.MAP_WIDTH) {
-    if (game.map[newY][newX] === 0 && !getEnemyAt(newX, newY)) {
-      game.player.x = newX;
-      game.player.y = newY;
-      pickupItem();
-    }
-  }
-
+    // 物品栏 1-4
+    document.getElementById('btn-item1').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        useInventoryItem(0);
+    });
+    document.getElementById('btn-item2').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        useInventoryItem(1);
+    });
+    document.getElementById('btn-item3').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        useInventoryItem(2);
+    });
+    document.getElementById('btn-item4').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        useInventoryItem(3);
+    });
+});
   enemiesTurn();
   draw();
   updateStatusBar();
@@ -662,6 +628,32 @@ window.getRangedTarget = getRangedTarget;
 window.getAllRangedTargets = getAllRangedTargets;
 window.updateBuffs = updateBuffs;
 window.getEnemyAt = getEnemyAt;
+// 暴露核心操作函数，供按钮直接调用
+window.playerAttack = playerAttack;
+window.switchWeapon = switchWeapon;
+window.goToNextFloor = goToNextFloor;
+window.movePlayer = function(dx, dy) {
+    if (window.isAnimating || game.player.stunned) return;
+
+    // 更新面向方向
+    game.player.facing = { x: dx, y: dy };
+
+    let newX = game.player.x + dx;
+    let newY = game.player.y + dy;
+
+    if (newY >= 0 && newY < CONST.MAP_HEIGHT && newX >= 0 && newX < CONST.MAP_WIDTH) {
+        if (game.map[newY][newX] === 0 && !getEnemyAt(newX, newY)) {
+            game.player.x = newX;
+            game.player.y = newY;
+            pickupItem(); // 拾取物品
+        }
+    }
+
+    enemiesTurn();
+    draw();
+    updateStatusBar();
+    checkGameOver();
+};
 window.playerTakeDamage = playerTakeDamage;
 
 // ========== 金手指系统 ==========
@@ -735,4 +727,5 @@ window.addEventListener('load', () => {
   } else {
     console.error('initGame 未定义');
   }
+
 });
