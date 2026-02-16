@@ -539,86 +539,7 @@ function playerTakeDamage(damage, source = null) {
   }
 }
 
-// 键盘事件
-document.addEventListener('DOMContentLoaded', () => {
-    // 方向键
-    document.getElementById('btn-up').addEventListener('click', () => window.movePlayer(0, -1));
-    document.getElementById('btn-down').addEventListener('click', () => window.movePlayer(0, 1));
-    document.getElementById('btn-left').addEventListener('click', () => window.movePlayer(-1, 0));
-    document.getElementById('btn-right').addEventListener('click', () => window.movePlayer(1, 0));
 
-    // 攻击
-    document.getElementById('btn-attack').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        window.playerAttack();
-    });
-
-    // 切换武器
-    document.getElementById('btn-switch').addEventListener('click', () => {
-        if (window.isAnimating) return;
-        window.switchWeapon();
-    });
-
-    // 下楼
-    document.getElementById('btn-downfloor').addEventListener('click', () => {
-        if (window.isAnimating) return;
-        window.goToNextFloor();
-    });
-
-    // 法术按钮 (Q W E R T)
-    document.getElementById('btn-spell-q').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        const spell = game.spells.find(s => s.key === 'q');
-        if (spell) spell.cast();
-    });
-    document.getElementById('btn-spell-w').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        const spell = game.spells.find(s => s.key === 'w');
-        if (spell) spell.cast();
-    });
-    document.getElementById('btn-spell-e').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        const spell = game.spells.find(s => s.key === 'e');
-        if (spell) spell.cast();
-    });
-    document.getElementById('btn-spell-r').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        const spell = game.spells.find(s => s.key === 'r');
-        if (spell) spell.cast();
-    });
-    document.getElementById('btn-spell-t').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        const spell = game.spells.find(s => s.key === 't');
-        if (spell) spell.cast();
-    });
-
-    // 物品栏 1-4
-    document.getElementById('btn-item1').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        useInventoryItem(0);
-    });
-    document.getElementById('btn-item2').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        useInventoryItem(1);
-    });
-    document.getElementById('btn-item3').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        useInventoryItem(2);
-    });
-    document.getElementById('btn-item4').addEventListener('click', () => {
-        if (window.isAnimating || game.player.stunned) return;
-        useInventoryItem(3);
-    });
-});
-  enemiesTurn();
-  draw();
-  updateStatusBar();
-  checkGameOver();
-  // 【关键】移动后（敌人回合结束）检查清图
-  if (typeof window.checkFloorClear === 'function') {
-    window.checkFloorClear();
-  }
-});
 
 // 暴露全局函数
 window.gainExp = gainExp;
@@ -729,3 +650,82 @@ window.addEventListener('load', () => {
   }
 
 });
+// ========== 暴露核心操作函数，供按钮直接调用 ==========
+window.playerAttack = playerAttack;
+window.switchWeapon = switchWeapon;
+window.goToNextFloor = goToNextFloor;
+
+window.movePlayer = function(dx, dy) {
+    if (window.isAnimating || game.player.stunned) return;
+
+    // 更新面向方向
+    game.player.facing = { x: dx, y: dy };
+
+    let newX = game.player.x + dx;
+    let newY = game.player.y + dy;
+
+    if (newY >= 0 && newY < CONST.MAP_HEIGHT && newX >= 0 && newX < CONST.MAP_WIDTH) {
+        if (game.map[newY][newX] === 0 && !window.getEnemyAt(newX, newY)) {
+            game.player.x = newX;
+            game.player.y = newY;
+            pickupItem(); // 拾取物品
+        }
+    }
+
+    enemiesTurn();
+    draw();
+    updateStatusBar();
+    checkGameOver();
+};
+
+// ========== 移动端按钮事件绑定 ==========
+document.addEventListener('DOMContentLoaded', () => {
+    // 方向键
+    document.getElementById('btn-up').addEventListener('click', () => window.movePlayer(0, -1));
+    document.getElementById('btn-down').addEventListener('click', () => window.movePlayer(0, 1));
+    document.getElementById('btn-left').addEventListener('click', () => window.movePlayer(-1, 0));
+    document.getElementById('btn-right').addEventListener('click', () => window.movePlayer(1, 0));
+
+    // 攻击
+    document.getElementById('btn-attack').addEventListener('click', () => {
+        if (window.isAnimating || game.player.stunned) return;
+        window.playerAttack();
+    });
+
+    // 切换武器
+    document.getElementById('btn-switch').addEventListener('click', () => {
+        if (window.isAnimating) return;
+        window.switchWeapon();
+    });
+
+    // 下楼
+    document.getElementById('btn-downfloor').addEventListener('click', () => {
+        if (window.isAnimating) return;
+        window.goToNextFloor();
+    });
+
+    // 法术按钮 (Q W E R T)
+    const spellKeys = ['q', 'w', 'e', 'r', 't'];
+    spellKeys.forEach(key => {
+        const btn = document.getElementById(`btn-spell-${key}`);
+        if (btn) {
+            btn.addEventListener('click', () => {
+                if (window.isAnimating || game.player.stunned) return;
+                const spell = game.spells.find(s => s.key === key);
+                if (spell) spell.cast();
+            });
+        }
+    });
+
+    // 物品栏 1-4
+    for (let i = 1; i <= 4; i++) {
+        const btn = document.getElementById(`btn-item${i}`);
+        if (btn) {
+            btn.addEventListener('click', () => {
+                if (window.isAnimating || game.player.stunned) return;
+                useInventoryItem(i - 1);
+            });
+        }
+    }
+});
+
