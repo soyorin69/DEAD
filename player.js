@@ -722,5 +722,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
+    // 金手指按钮
+document.getElementById('btn-cheat').addEventListener('click', () => {
+    showCheatPassword();
 });
+});
+
 
